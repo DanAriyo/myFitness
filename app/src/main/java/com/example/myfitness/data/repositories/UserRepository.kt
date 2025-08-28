@@ -13,16 +13,15 @@ class UserRepository(
 
     suspend fun createUser(user: User): Boolean {
         return try {
-            // Firestore genera automaticamente un ID per il documento
-            val docRef = usersCollection.add(user).await()
-            Log.d("UserRepository", "Utente creato con ID: ${docRef.id}")
+            // Usa `doc()` per specificare l'ID del documento
+            usersCollection.document(user.id).set(user).await()
+            Log.d("UserRepository", "Utente creato con ID: ${user.id}")
             true
         } catch (e: Exception) {
             Log.e("UserRepository", "Errore creando utente: ${e.message}", e)
             false
         }
     }
-
     suspend fun getUser(userId: String): User? {
         return try {
             val snapshot = usersCollection.document(userId).get().await()
