@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -25,7 +24,6 @@ fun AuthScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Navigazione quando l'utente è loggato
     LaunchedEffect(state.isLoggedIn) {
         if (state.isLoggedIn) {
             navController.navigate(FitnessScreen.Home.toRoute()) {
@@ -34,7 +32,6 @@ fun AuthScreen(
         }
     }
 
-    // Mostra snackbar in caso di errore
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
@@ -42,13 +39,13 @@ fun AuthScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        containerColor = Color.Black
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -56,17 +53,23 @@ fun AuthScreen(
             TextField(
                 value = state.email,
                 onValueChange = actions::setEmail,
-                label = { Text("Email", color = Color.White) },
+                label = { Text("Email", color = MaterialTheme.colorScheme.onSurface) },
                 singleLine = true,
-                trailingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = Color.White) },
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.Email,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                },
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    cursorColor = Color.Green,
-                    focusedContainerColor = Color.DarkGray,
-                    unfocusedContainerColor = Color.DarkGray,
-                    focusedPlaceholderColor = Color.White,
-                    unfocusedPlaceholderColor = Color.White
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -76,18 +79,24 @@ fun AuthScreen(
             TextField(
                 value = state.password,
                 onValueChange = actions::setPassword,
-                label = { Text("Password", color = Color.White) },
+                label = { Text("Password", color = MaterialTheme.colorScheme.onSurface) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
-                trailingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White) },
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.Lock,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                },
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    cursorColor = Color.Green,
-                    focusedContainerColor = Color.DarkGray,
-                    unfocusedContainerColor = Color.DarkGray,
-                    focusedPlaceholderColor = Color.White,
-                    unfocusedPlaceholderColor = Color.White
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -102,24 +111,24 @@ fun AuthScreen(
                 Button(
                     onClick = { actions.login() },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Login")
+                    Text("Login", color = MaterialTheme.colorScheme.onPrimary)
                 }
 
                 // Bottone Registrati → naviga a RegisterScreen
                 Button(
                     onClick = { navController.navigate(FitnessScreen.Register.toRoute()) },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                 ) {
-                    Text("Registrati")
+                    Text("Registrati", color = MaterialTheme.colorScheme.onSecondary)
                 }
             }
 
             if (state.isLoading) {
                 Spacer(Modifier.height(16.dp))
-                CircularProgressIndicator(color = Color.Green)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
     }
