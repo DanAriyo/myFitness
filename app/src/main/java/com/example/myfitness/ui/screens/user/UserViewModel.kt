@@ -41,6 +41,30 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
         }
     }
 
+    // Funzione per aggiornare i dati dell'utente
+    fun updateUser(userId: String, updatedUser: User) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = null) }
+            try {
+                val success = repository.updateUser(userId, updatedUser)
+                if (success) {
+                    _state.update { it.copy(user = updatedUser, isLoading = false) }
+                    Log.d("UserViewModel", "Utente aggiornato con successo.")
+                } else {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "Errore durante l'aggiornamento dell'utente."
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("UserViewModel", "Errore aggiornando utente: ${e.message}", e)
+                _state.update { it.copy(isLoading = false, errorMessage = e.message) }
+            }
+        }
+    }
+
     // Funzione per dare in output l'utente corrente
     fun getUser(): User? {
         return _state.value.user
