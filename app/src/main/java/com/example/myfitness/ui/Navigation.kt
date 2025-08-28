@@ -1,13 +1,12 @@
 package com.example.myfitness.ui
 
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.myfitness.data.repositories.AuthRepository
 import com.example.myfitness.ui.screens.auth.AuthScreen
 import com.example.myfitness.ui.screens.auth.AuthViewModel
 import com.example.myfitness.ui.screens.auth.RegisterScreen
@@ -15,8 +14,10 @@ import com.example.myfitness.ui.screens.exercise.ExerciseViewModel
 import com.example.myfitness.ui.screens.exercise.ExerciseScreen
 import com.example.myfitness.ui.screens.home.HomeViewModel
 import com.example.myfitness.ui.screens.home.HomeScreen
+import com.example.myfitness.ui.screens.training.TrainingListViewModel
 import com.example.myfitness.ui.screens.training.TrainingScreen
 import com.example.myfitness.ui.screens.training.TrainingViewModel
+import com.example.myfitness.ui.screens.training.TrainingListScreen
 import com.example.myfitness.ui.screens.user.UserViewModel
 import com.example.myfitness.ui.screens.user.UserScreen
 import kotlinx.serialization.Serializable
@@ -30,6 +31,7 @@ sealed interface FitnessScreen {
     @Serializable data object Training: FitnessScreen
     @Serializable data object Exercise: FitnessScreen
     @Serializable data object Register: FitnessScreen
+    @Serializable data object TrainingList: FitnessScreen
 
 }
 
@@ -41,6 +43,7 @@ fun FitnessScreen.toRoute(): String = when (this) {
     FitnessScreen.Training -> "train"
     FitnessScreen.Exercise -> "exercise"
     FitnessScreen.Register -> "register"
+    FitnessScreen.TrainingList -> "traininglist"
 
 
 
@@ -86,12 +89,13 @@ fun MyFitnessNavGraph(navController: NavHostController) {
 
         composable("train") {
             val vm = koinViewModel<TrainingViewModel>()
+            val authVm = koinViewModel<AuthViewModel>()
             val state by vm.state.collectAsStateWithLifecycle()
             TrainingScreen(
                 state = state,
                 actions = vm.actions,
                 navController = navController,
-                userId = "12"
+                authViewModel = authVm
             )
         }
 
@@ -113,6 +117,18 @@ fun MyFitnessNavGraph(navController: NavHostController) {
                 state = state,
                 actions = vm.actions,
                 navController = navController
+            )
+        }
+
+        composable("traininglist") {
+            val vm = koinViewModel<TrainingListViewModel>()
+            val authVm = koinViewModel<AuthViewModel>()
+            val state by vm.state.collectAsStateWithLifecycle()
+            TrainingListScreen(
+                state = state,
+                actions = vm.actions,
+                navController = navController,
+                authViewModel = authVm
             )
         }
 

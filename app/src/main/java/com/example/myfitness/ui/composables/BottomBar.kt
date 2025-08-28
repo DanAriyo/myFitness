@@ -22,7 +22,7 @@ fun BottomBar(navController: NavController) {
         NavigationBarItem(
             icon = { Icon(Icons.Filled.FitnessCenter, contentDescription = "Allenamento") },
             selected = false,
-            onClick = { navController.navigate("train") }
+            onClick = { navController.navigate("traininglist") }
         )
         NavigationBarItem(
             icon = { Icon(Icons.Filled.Person, contentDescription = "Profilo") },

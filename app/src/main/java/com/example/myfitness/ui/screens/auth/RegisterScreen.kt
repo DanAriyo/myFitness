@@ -38,11 +38,11 @@ fun RegisterScreen(
     }
 
     // Mostra snackbar in caso di errore
-            LaunchedEffect(state.errorMessage) {
-                state.errorMessage?.let { message ->
-                    snackbarHostState.showSnackbar(message)
-                }
-            }
+    LaunchedEffect(state.errorMessage) {
+        state.errorMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
     Scaffold(
         containerColor = Color.Black

@@ -54,7 +54,12 @@ fun HomeScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     color = Color.White
                 )
-                IconButton(onClick = { /* azione futura */ }) {
+                IconButton(
+                    onClick = {
+                        // Naviga verso la schermata di creazione allenamento
+                        navController.navigate("train")
+                    }
+                ) {
                     Icon(Icons.Default.Add, contentDescription = "Aggiungi", tint = Color.Green)
                 }
             }
@@ -136,7 +141,9 @@ fun CircularStatCard(label: String, current: Int, max: Int, color: Color) {
         // Cerchio progress
         CircularProgressIndicator(
             progress = { progress },
-            modifier = Modifier.fillMaxSize().padding(12.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
             color = color,
             strokeWidth = 12.dp,
             trackColor = ProgressIndicatorDefaults.circularTrackColor,
@@ -173,5 +180,4 @@ fun CalendarRow() {
             }
         }
     }
-
 }
