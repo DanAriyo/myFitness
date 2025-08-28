@@ -5,6 +5,8 @@ import com.example.myfitness.data.models.Exercise
 import com.example.myfitness.data.models.Training
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.firestore.WriteBatch
+import kotlinx.coroutines.coroutineScope
 
 class TrainingRepository(
     private val firestore: FirebaseFirestore
@@ -64,7 +66,6 @@ class TrainingRepository(
         }
     }
 
-
     suspend fun getTrainingById(userId: String, trainingId: String): Training? {
         return try {
             val trainingDocRef = firestore
@@ -90,6 +91,49 @@ class TrainingRepository(
         } catch (e: Exception) {
             Log.e("TrainingRepository", "Errore nel recupero dell'allenamento $trainingId: ${e.message}", e)
             null
+        }
+    }
+
+    // ✅ Funzione per aggiornare la lista di esercizi
+    suspend fun updateTrainingExercises(userId: String, trainingId: String, newExercises: List<Exercise>): Boolean {
+        // ✅ LOG Aggiunto per debug
+        Log.d("TrainingRepository", "updateTrainingExercises chiamato con:")
+        Log.d("TrainingRepository", "  userId: $userId")
+        Log.d("TrainingRepository", "  trainingId: $trainingId")
+        Log.d("TrainingRepository", "  newExercises: ${newExercises.joinToString { it.name }}")
+
+        return try {
+            val trainingDocRef = firestore
+                .collection("users")
+                .document(userId)
+                .collection("trainings")
+                .document(trainingId)
+
+            // Step 1: Cancella tutti gli esercizi esistenti nella sottocollezione
+            val oldExercisesSnapshot = trainingDocRef.collection("exercises").get().await()
+            if (oldExercisesSnapshot.documents.isNotEmpty()) {
+                val deleteBatch = firestore.batch()
+                oldExercisesSnapshot.documents.forEach { doc ->
+                    deleteBatch.delete(doc.reference)
+                }
+                deleteBatch.commit().await()
+            }
+
+            // Step 2: Aggiungi i nuovi esercizi come nuova sottocollezione
+            if (newExercises.isNotEmpty()) {
+                val addBatch = firestore.batch()
+                newExercises.forEach { exercise ->
+                    val exerciseDocRef = trainingDocRef.collection("exercises").document()
+                    addBatch.set(exerciseDocRef, exercise.copy(id = exerciseDocRef.id))
+                }
+                addBatch.commit().await()
+            }
+
+            Log.d("TrainingRepository", "Esercizi dell'allenamento $trainingId aggiornati con successo.")
+            true
+        } catch (e: Exception) {
+            Log.e("TrainingRepository", "Errore aggiornando gli esercizi: ${e.message}", e)
+            false
         }
     }
 }
