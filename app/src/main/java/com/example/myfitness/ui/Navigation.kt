@@ -1,12 +1,13 @@
 package com.example.myfitness.ui
 
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 import com.example.myfitness.ui.screens.auth.AuthScreen
 import com.example.myfitness.ui.screens.auth.AuthViewModel
 import com.example.myfitness.ui.screens.auth.RegisterScreen
@@ -18,11 +19,12 @@ import com.example.myfitness.ui.screens.training.TrainingListViewModel
 import com.example.myfitness.ui.screens.training.TrainingScreen
 import com.example.myfitness.ui.screens.training.TrainingViewModel
 import com.example.myfitness.ui.screens.training.TrainingListScreen
+import com.example.myfitness.ui.screens.training.TrainingDetailScreen
+import com.example.myfitness.ui.screens.training.TrainingDetailViewModel
 import com.example.myfitness.ui.screens.user.UserViewModel
 import com.example.myfitness.ui.screens.user.UserScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
-
 
 sealed interface FitnessScreen {
     @Serializable data object Auth : FitnessScreen
@@ -32,10 +34,8 @@ sealed interface FitnessScreen {
     @Serializable data object Exercise: FitnessScreen
     @Serializable data object Register: FitnessScreen
     @Serializable data object TrainingList: FitnessScreen
-
 }
 
-// Funzione di estensione per ottenere la route come stringa
 fun FitnessScreen.toRoute(): String = when (this) {
     FitnessScreen.Auth -> "auth"
     FitnessScreen.Home -> "home"
@@ -44,18 +44,14 @@ fun FitnessScreen.toRoute(): String = when (this) {
     FitnessScreen.Exercise -> "exercise"
     FitnessScreen.Register -> "register"
     FitnessScreen.TrainingList -> "traininglist"
-
-
-
 }
 
 @Composable
 fun MyFitnessNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = FitnessScreen.Auth.toRoute() // usa la stringa
+        startDestination = FitnessScreen.Auth.toRoute()
     ) {
-
         composable("auth") {
             val vm = koinViewModel<AuthViewModel>()
             val state by vm.state.collectAsStateWithLifecycle()
@@ -85,7 +81,6 @@ fun MyFitnessNavGraph(navController: NavHostController) {
                 navController = navController
             )
         }
-
 
         composable("train") {
             val vm = koinViewModel<TrainingViewModel>()
@@ -132,8 +127,20 @@ fun MyFitnessNavGraph(navController: NavHostController) {
             )
         }
 
+        composable(
+            route = "trainingDetail/{trainingId}",
+            arguments = listOf(navArgument("trainingId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val trainingId = backStackEntry.arguments?.getString("trainingId") ?: ""
+            val authVm = koinViewModel<AuthViewModel>()
+            val vm = koinViewModel<TrainingDetailViewModel>()
 
-
-
+            TrainingDetailScreen(
+                navController = navController,
+                authViewModel = authVm,
+                trainingId = trainingId,
+                viewModel = vm
+            )
+        }
     }
 }

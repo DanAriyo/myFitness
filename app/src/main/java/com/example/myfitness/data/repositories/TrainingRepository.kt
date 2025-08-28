@@ -64,12 +64,7 @@ class TrainingRepository(
         }
     }
 
-    /**
-     * Recupera un singolo allenamento per un utente specifico.
-     * @param userId L'ID dell'utente.
-     * @param trainingId L'ID dell'allenamento.
-     * @return L'oggetto Training corrispondente, o null se non trovato.
-     */
+
     suspend fun getTrainingById(userId: String, trainingId: String): Training? {
         return try {
             val trainingDocRef = firestore

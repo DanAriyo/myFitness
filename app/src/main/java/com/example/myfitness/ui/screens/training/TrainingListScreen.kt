@@ -1,5 +1,6 @@
 package com.example.myfitness.ui.screens.training
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,9 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.myfitness.data.models.Training
 import com.example.myfitness.ui.composables.BottomBar
 import com.example.myfitness.ui.screens.auth.AuthViewModel
-import com.example.myfitness.data.models.Training
 
 @Composable
 fun TrainingListScreen(
@@ -21,13 +22,9 @@ fun TrainingListScreen(
     navController: NavController,
     authViewModel: AuthViewModel
 ) {
-
-
-    // Carica gli allenamenti quando la schermata viene visualizzata
     LaunchedEffect(Unit) {
         val userId = authViewModel.actions.getCurrentUserId()
         if (userId.isNotEmpty()) {
-            // We use the 'actions' parameter directly, which is passed from the ViewModel
             actions.loadTrainings(userId)
         }
     }
@@ -57,7 +54,12 @@ fun TrainingListScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(state.trainings) { training ->
-                    TrainingCard(training = training)
+                    TrainingCard(
+                        training = training,
+                        onClick = {
+                            navController.navigate("trainingDetail/${training.id}")
+                        }
+                    )
                 }
             }
         }
@@ -65,11 +67,12 @@ fun TrainingListScreen(
 }
 
 @Composable
-fun TrainingCard(training: Training) {
+fun TrainingCard(training: Training, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp),
+            .height(80.dp)
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box(
