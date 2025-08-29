@@ -14,10 +14,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.myfitness.ui.MyFitnessNavGraph
 import com.example.myfitness.ui.theme.MyFitnessTheme
+import org.osmdroid.config.Configuration
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Usa il package name dell'applicazione come User-Agent.
+        Configuration.getInstance().userAgentValue = applicationContext.packageName
+
         setContent {
             MyFitnessTheme {
                 val navController = rememberNavController()
@@ -26,5 +31,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-
