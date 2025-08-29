@@ -15,6 +15,8 @@ import com.example.myfitness.ui.screens.exercise.ExerciseViewModel
 import com.example.myfitness.ui.screens.exercise.ExerciseScreen
 import com.example.myfitness.ui.screens.home.HomeViewModel
 import com.example.myfitness.ui.screens.home.HomeScreen
+import com.example.myfitness.ui.screens.maps.MapScreen
+import com.example.myfitness.ui.screens.maps.MapViewModel
 import com.example.myfitness.ui.screens.training.TrainingListViewModel
 import com.example.myfitness.ui.screens.training.TrainingScreen
 import com.example.myfitness.ui.screens.training.TrainingViewModel
@@ -140,6 +142,14 @@ fun MyFitnessNavGraph(navController: NavHostController) {
                 authViewModel = authVm,
                 trainingId = trainingId,
                 viewModel = vm
+            )
+        }
+
+        composable("maps") {
+            val vm = koinViewModel<MapViewModel>()
+            MapScreen(
+                viewModel = vm,
+                navController = navController
             )
         }
     }

@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
@@ -31,9 +32,14 @@ fun BottomBar(navController: NavController) {
         )
 
         NavigationBarItem(
-            icon = { Icon(Icons.AutoMirrored.Filled.ShowChart, contentDescription = "Grafici") },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Place,
+                    contentDescription = "Mappa"
+                )
+            },
             selected = false,
-            onClick = { navController.navigate("stats") }
+            onClick = { navController.navigate("maps") }
         )
     }
 }

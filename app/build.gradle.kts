@@ -84,4 +84,10 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
+    implementation("io.ktor:ktor-client-core:2.3.8")
+    implementation("io.ktor:ktor-client-cio:2.3.8")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.8")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.8")
 }
