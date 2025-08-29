@@ -1,15 +1,19 @@
 package com.example.myfitness.ui.screens.user
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myfitness.data.models.User
 import com.example.myfitness.ui.composables.BottomBar
 import com.example.myfitness.ui.screens.auth.AuthViewModel
+import com.example.myfitness.data.models.local.ThemeSettings
+
 
 @Composable
 fun UserScreen(
@@ -18,6 +22,7 @@ fun UserScreen(
     navController: NavController
 ) {
     val state by viewModel.state.collectAsState()
+    val currentTheme by viewModel.currentTheme.collectAsState()
     var isEditing by remember { mutableStateOf(false) }
 
     // Dati temporanei per la modifica
@@ -117,6 +122,19 @@ fun UserScreen(
                         )
                     }
                 }
+
+                // ✅ Sezione per la scelta del tema
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Impostazioni Tema",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                ThemeToggleGroup(
+                    currentTheme = currentTheme,
+                    onThemeSelected = { newTheme ->
+                        viewModel.updateTheme(newTheme)
+                    }
+                )
             }
 
             // Bottoni di gestione
@@ -142,7 +160,8 @@ fun UserScreen(
                                 lastName = lastName,
                                 height = height.toIntOrNull() ?: 0,
                                 weight = weight.toIntOrNull() ?: 0,
-                                email = email
+                                email = email,
+                                theme = state.user?.theme ?: ThemeSettings.SYSTEM.name // Mantieni il tema
                             )
                             viewModel.updateUser(userId, updatedUser)
                         }
@@ -155,5 +174,46 @@ fun UserScreen(
                 }
             }
         }
+    }
+}
+
+// ✅ Componente riutilizzabile per il toggle del tema
+@Composable
+fun ThemeToggleGroup(
+    currentTheme: ThemeSettings,
+    onThemeSelected: (ThemeSettings) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButtonWithLabel(
+            text = "Chiaro",
+            isSelected = currentTheme == ThemeSettings.LIGHT,
+            onClick = { Log.d("UserScreen", "Tentativo di impostare il tema su LIGHT.")
+                onThemeSelected(ThemeSettings.LIGHT) }
+        )
+        RadioButtonWithLabel(
+            text = "Scuro",
+            isSelected = currentTheme == ThemeSettings.DARK,
+            onClick = { Log.d("UserScreen", "Tentativo di impostare il tema su DARK.")
+                onThemeSelected(ThemeSettings.DARK) }
+        )
+        RadioButtonWithLabel(
+            text = "Sistema",
+            isSelected = currentTheme == ThemeSettings.SYSTEM,
+            onClick = { Log.d("UserScreen", "Tentativo di impostare il tema su SYSTEM.")
+                onThemeSelected(ThemeSettings.SYSTEM) }
+        )
+    }
+}
+
+@Composable
+fun RadioButtonWithLabel(text: String, isSelected: Boolean, onClick: () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        RadioButton(selected = isSelected, onClick = onClick)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = text, style = MaterialTheme.typography.bodyLarge)
     }
 }

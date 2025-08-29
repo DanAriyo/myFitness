@@ -33,7 +33,6 @@ fun TrainingScreen(
     navController: NavController,
     authViewModel: AuthViewModel
 ) {
-    MyFitnessTheme {
         Scaffold(
             bottomBar = { BottomBar(navController) },
             floatingActionButton = {
@@ -114,7 +113,6 @@ fun TrainingScreen(
                 }
             }
         }
-    }
 }
 
 @Composable

@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import android.util.Log
+import com.example.myfitness.data.models.local.ThemeSettings
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.flow.StateFlow
 import java.util.UUID
 
 // Stato dell'utente
@@ -24,7 +26,10 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
     private val _state = MutableStateFlow(UserState())
     val state = _state.asStateFlow()
 
-    // Funzione per ottenere un utente dal repository dato un ID
+    private val _currentTheme = MutableStateFlow(ThemeSettings.SYSTEM)
+    val currentTheme: StateFlow<ThemeSettings> = _currentTheme.asStateFlow()
+
+
     fun loadUser(userId: String) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = null) }
@@ -32,6 +37,11 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
                 val user = repository.getUser(userId)
                 if (user != null) {
                     _state.update { it.copy(user = user, isLoading = false) }
+
+                    // ✅ MODIFICA: gestisci il caso in cui user.theme è nullo
+                    _currentTheme.value = user.theme?.let {
+                        ThemeSettings.valueOf(it)
+                    } ?: ThemeSettings.SYSTEM // Usa un valore di default sicuro
                     Log.d("UserViewModel", "Utente caricato: $user")
                 } else {
                     _state.update { it.copy(isLoading = false, errorMessage = "Utente non trovato") }
@@ -70,5 +80,22 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
     // Funzione per dare in output l'utente corrente
     fun getUser(): User? {
         return _state.value.user
+    }
+
+    // ✅ Nuova funzione per aggiornare solo il tema
+    fun updateTheme(newTheme: ThemeSettings) {
+        Log.d("UserViewModel", "Ricevuta richiesta di aggiornamento tema: ${newTheme.name}")
+        viewModelScope.launch {
+            _state.value.user?.let { currentUser ->
+                val success = repository.updateTheme(currentUser.id, newTheme)
+                if (success) {
+                    // Aggiorna lo stato locale del tema
+                    _currentTheme.value = newTheme
+                    Log.d("UserViewModel", "Tema aggiornato con successo.")
+                } else {
+                    Log.e("UserViewModel", "Errore nell'aggiornamento del tema su Firebase.")
+                }
+            }
+        }
     }
 }

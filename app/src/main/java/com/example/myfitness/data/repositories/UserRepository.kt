@@ -6,6 +6,7 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import android.util.Log
 import android.net.Uri
+import com.example.myfitness.data.models.local.ThemeSettings
 import java.util.UUID
 
 class UserRepository(
@@ -44,6 +45,17 @@ class UserRepository(
             true
         } catch (e: Exception) {
             Log.e("UserRepository", "Errore aggiornando utente: ${e.message}", e)
+            false
+        }
+    }
+
+    suspend fun updateTheme(userId: String, newTheme: ThemeSettings): Boolean {
+        return try {
+            usersCollection.document(userId).update("theme", newTheme.name).await()
+            Log.d("UserRepository", "Tema utente aggiornato per ID: $userId a ${newTheme.name}")
+            true
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Errore aggiornando il tema utente: ${e.message}", e)
             false
         }
     }
