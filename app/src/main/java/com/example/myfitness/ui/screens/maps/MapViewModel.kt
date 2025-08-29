@@ -98,7 +98,9 @@ class MapViewModel : ViewModel() {
                 // Aggiungi un log per verificare che la funzione venga chiamata
                 Log.d("MapViewModel", "Cercando POI per: Lat=$latitude, Lon=$longitude")
 
-                val overpassQuery = "[out:json];node(around:5000,$latitude,$longitude)[\"leisure\"=\"fitness_centre\"];node(around:5000,$latitude,$longitude)[\"amenity\"=\"gym\"];out body;"
+                //val overpassQuery = "[out:json];node(around:20000,$latitude,$longitude)[\"leisure\"=\"park\"];node(around:20000,$latitude,$longitude)[\"leisure\"=\"fitness_centre\"];node(around:20000,$latitude,$longitude)[\"leisure\"=\"fitness_station\"];out body;"
+                //val overpassQuery = "[out:json];node(around:15000,$latitude,$longitude)[\"leisure\"=\"park\"];out body;"
+                val overpassQuery = "[out:json];node(around:30000,$latitude,$longitude)[\"leisure\"=\"fitness_centre\"];out body;"
 
                 val response: OverpassResponse = httpClient.get("https://overpass-api.de/api/interpreter") {
                     parameter("data", overpassQuery)

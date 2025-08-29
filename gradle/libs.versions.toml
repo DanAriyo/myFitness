@@ -23,7 +23,7 @@ playServicesLocation = "21.3.0"
 room = "2.6.1"
 supportAnnotations = "28.0.0"
 foundationAndroid = "1.7.2"
-
+osmdroid = "6.1.18"
 
 
 [libraries]
@@ -66,7 +66,7 @@ play-services-location = { module = "com.google.android.gms:play-services-locati
 support-annotations = { group = "com.android.support", name = "support-annotations", version.ref = "supportAnnotations" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx"}
 androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
-
+osmdroid-android = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
 
 
 [plugins]
