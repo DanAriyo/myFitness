@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.ScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,7 +32,16 @@ fun HomeScreen(
     navController: NavController
 ) {
     Scaffold(
-        bottomBar = { BottomBar(navController) }
+        bottomBar = { BottomBar(navController) },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate("train") },
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Aggiungi Allenamento")
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -42,7 +52,7 @@ fun HomeScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header con +
+            // Header con l'icona del profilo
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -55,12 +65,12 @@ fun HomeScreen(
                 )
                 IconButton(
                     onClick = {
-                        navController.navigate("train")
+                        navController.navigate("user")
                     }
                 ) {
                     Icon(
-                        Icons.Default.Add,
-                        contentDescription = "Aggiungi",
+                        Icons.Filled.Person,
+                        contentDescription = "Profilo",
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
