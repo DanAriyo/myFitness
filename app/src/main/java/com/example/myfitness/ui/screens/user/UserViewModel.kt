@@ -31,6 +31,7 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
 
 
     fun loadUser(userId: String) {
+        Log.d("UserViewModel", "Inizio caricamento utente per ID: $userId")
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = null) }
             try {
@@ -38,16 +39,27 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
                 if (user != null) {
                     _state.update { it.copy(user = user, isLoading = false) }
 
-                    // ✅ MODIFICA: gestisci il caso in cui user.theme è nullo
-                    _currentTheme.value = user.theme?.let {
-                        ThemeSettings.valueOf(it)
-                    } ?: ThemeSettings.SYSTEM // Usa un valore di default sicuro
-                    Log.d("UserViewModel", "Utente caricato: $user")
+                    Log.d("UserViewModel", "Utente trovato. Valore tema dal DB: ${user.theme}")
+
+                    // ✅ Controlla il valore prima di aggiornare lo StateFlow
+                    val newTheme = user.theme?.let { themeString ->
+                        try {
+                            ThemeSettings.valueOf(themeString)
+                        } catch (e: IllegalArgumentException) {
+                            Log.e("UserViewModel", "Valore tema non valido nel DB: $themeString. Errore: ${e.message}")
+                            ThemeSettings.SYSTEM // Usa un valore di default sicuro
+                        }
+                    } ?: ThemeSettings.SYSTEM
+
+                    Log.d("UserViewModel", "Nuovo valore di _currentTheme impostato su: ${newTheme.name}")
+                    _currentTheme.value = newTheme
+
                 } else {
+                    Log.d("UserViewModel", "Utente con ID $userId non trovato nel database.")
                     _state.update { it.copy(isLoading = false, errorMessage = "Utente non trovato") }
                 }
             } catch (e: Exception) {
-                Log.e("UserViewModel", "Errore caricando utente: ${e.message}", e)
+                Log.e("UserViewModel", "Errore caricando utente per ID $userId: ${e.message}", e)
                 _state.update { it.copy(isLoading = false, errorMessage = e.message) }
             }
         }
