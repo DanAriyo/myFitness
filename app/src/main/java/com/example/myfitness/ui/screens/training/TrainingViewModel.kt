@@ -9,12 +9,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.google.firebase.Timestamp
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
 
 
-// --- STATE ---
 data class TrainingState(
     val trainingName: String = "",
     val exercises: List<Exercise> = emptyList(),
+    // ✅ Lo stato della UI continua a usare LocalDate per semplicità
+    val calories: String = "",
+    val date: LocalDate = LocalDate.now(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null
 )
@@ -27,12 +33,14 @@ interface TrainingActions {
     fun onExerciseSetsChange(index: Int, sets: Int)
     fun onExerciseRepsChange(index: Int, reps: Int)
     fun onExerciseDurationChange(index: Int, duration: String)
+    fun onCaloriesChange(calories: String)
+    fun onDateChange(date: LocalDate)
     fun saveTraining(userId: String)
 }
 
 // --- VIEWMODEL ---
 class TrainingViewModel(
-    private val trainingRepository: TrainingRepository // <-- Dependency
+    private val trainingRepository: TrainingRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TrainingState())
@@ -86,22 +94,40 @@ class TrainingViewModel(
             }
         }
 
+        override fun onCaloriesChange(calories: String) {
+            _state.update { it.copy(calories = calories) }
+        }
+
+        override fun onDateChange(date: LocalDate) {
+            _state.update { it.copy(date = date) }
+        }
+
         override fun saveTraining(userId: String) {
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true, errorMessage = null) }
                 try {
-                    val newTraining = Training(
-                        titolo = _state.value.trainingName,
-                        esercizi = _state.value.exercises
+                    val caloriesInt = _state.value.calories.toIntOrNull()
+                    if (caloriesInt == null) {
+                        _state.update { it.copy(isLoading = false, errorMessage = "Inserisci un valore valido per le calorie.") }
+                        return@launch
+                    }
+
+                    // ✅ Converti LocalDate in Timestamp prima di creare l'oggetto Training
+                    val dateTimestamp = Timestamp(
+                        Date.from(_state.value.date.atStartOfDay(ZoneId.systemDefault()).toInstant())
                     )
 
-                    // Call the repository to save the training
+                    val newTraining = Training(
+                        titolo = _state.value.trainingName,
+                        esercizi = _state.value.exercises,
+                        calorie = caloriesInt,
+                        data = dateTimestamp // ✅ Usa il Timestamp convertito qui
+                    )
+
                     val isSuccess = trainingRepository.createTraining(userId, newTraining)
 
                     if (isSuccess) {
-                        // Clear the state after a successful save
                         _state.update { TrainingState(isLoading = false) }
-                        // You can also add navigation logic here to go back to a previous screen
                     } else {
                         _state.update { it.copy(isLoading = false, errorMessage = "Errore durante il salvataggio") }
                     }

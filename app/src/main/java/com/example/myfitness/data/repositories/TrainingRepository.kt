@@ -94,9 +94,7 @@ class TrainingRepository(
         }
     }
 
-    // ✅ Funzione per aggiornare la lista di esercizi
     suspend fun updateTrainingExercises(userId: String, trainingId: String, newExercises: List<Exercise>): Boolean {
-        // ✅ LOG Aggiunto per debug
         Log.d("TrainingRepository", "updateTrainingExercises chiamato con:")
         Log.d("TrainingRepository", "  userId: $userId")
         Log.d("TrainingRepository", "  trainingId: $trainingId")
@@ -133,6 +131,32 @@ class TrainingRepository(
             true
         } catch (e: Exception) {
             Log.e("TrainingRepository", "Errore aggiornando gli esercizi: ${e.message}", e)
+            false
+        }
+    }
+
+    // ✅ Funzione per aggiornare l'allenamento principale
+    suspend fun updateTraining(userId: String, trainingId: String, updatedTraining: Training): Boolean {
+        return try {
+            val trainingDocRef = firestore
+                .collection("users")
+                .document(userId)
+                .collection("trainings")
+                .document(trainingId)
+
+            // Crea una mappa di dati da aggiornare
+            val updates = mapOf(
+                "titolo" to updatedTraining.titolo,
+                "calorie" to updatedTraining.calorie,
+                "data" to updatedTraining.data
+            )
+
+            trainingDocRef.update(updates).await()
+
+            Log.d("TrainingRepository", "Allenamento $trainingId aggiornato con successo.")
+            true
+        } catch (e: Exception) {
+            Log.e("TrainingRepository", "Errore aggiornando l'allenamento $trainingId: ${e.message}", e)
             false
         }
     }
