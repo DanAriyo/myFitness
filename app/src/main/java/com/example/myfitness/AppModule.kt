@@ -29,7 +29,7 @@ val appModule = module {
     // ViewModels
     viewModel { AuthViewModel(get(), get()) }
     viewModel { HomeViewModel() }
-    viewModel{ UserViewModel(get()) }
+    viewModel{ UserViewModel(get(), get()) }
     viewModel{ TrainingViewModel(get()) }
     viewModel { TrainingListViewModel(get()) }
     viewModel { TrainingDetailViewModel(get()) }

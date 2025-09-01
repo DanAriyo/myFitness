@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExitToApp // ✅ Importa l'icona
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -51,7 +52,7 @@ fun UserScreen(
     }
 
     Scaffold(
-        topBar = { TopBar(title = "Profilo Utente") }, // ✅ Aggiungi la tua TopBar
+        topBar = { TopBar(title = "Profilo Utente") },
         bottomBar = { BottomBar(navController) }
     ) { contentPadding ->
         Column(
@@ -60,7 +61,7 @@ fun UserScreen(
                 .padding(contentPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally // Centra orizzontalmente i contenuti
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (state.isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -86,7 +87,7 @@ fun UserScreen(
                             label = { Text("Nome") },
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = !isEditing,
-                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) } // ✅ Icona
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
                         )
 
                         OutlinedTextField(
@@ -95,7 +96,7 @@ fun UserScreen(
                             label = { Text("Cognome") },
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = !isEditing,
-                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) } // ✅ Icona
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
                         )
 
                         OutlinedTextField(
@@ -104,7 +105,7 @@ fun UserScreen(
                             label = { Text("Peso (kg)") },
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = !isEditing,
-                            leadingIcon = { Icon(Icons.Default.Scale, contentDescription = null) } // ✅ Icona
+                            leadingIcon = { Icon(Icons.Default.Scale, contentDescription = null) }
                         )
 
                         OutlinedTextField(
@@ -113,7 +114,7 @@ fun UserScreen(
                             label = { Text("Altezza (cm)") },
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = !isEditing,
-                            leadingIcon = { Icon(Icons.Default.Height, contentDescription = null) } // ✅ Icona
+                            leadingIcon = { Icon(Icons.Default.Height, contentDescription = null) }
                         )
 
                         OutlinedTextField(
@@ -122,7 +123,7 @@ fun UserScreen(
                             label = { Text("Email") },
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = true,
-                            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) } // ✅ Icona
+                            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) }
                         )
                     }
                 }
@@ -133,7 +134,6 @@ fun UserScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // ✅ Bottone "Modifica" più bello
                 FilledTonalButton(
                     onClick = { isEditing = true },
                     modifier = Modifier.weight(1f),
@@ -144,7 +144,6 @@ fun UserScreen(
                     Text("Modifica")
                 }
 
-                // ✅ Bottone "Salva" più bello
                 Button(
                     onClick = {
                         val userId = authViewModel.actions.getCurrentUserId()
@@ -168,6 +167,22 @@ fun UserScreen(
                     Spacer(Modifier.width(8.dp))
                     Text("Salva")
                 }
+            }
+
+            // ✅ Pulsante di Logout
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedButton(
+                onClick = {
+                    viewModel.logout() // ✅ Chiama la funzione logout del ViewModel
+                    navController.navigate("auth") { // Naviga alla schermata di login
+                        popUpTo("home") { inclusive = true } // Rimuovi lo stack di navigazione
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.ExitToApp, contentDescription = "Esci")
+                Spacer(Modifier.width(8.dp))
+                Text("Esci")
             }
         }
     }

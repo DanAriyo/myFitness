@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import android.util.Log
 import com.example.myfitness.data.models.local.ThemeSettings
+import com.example.myfitness.data.repositories.AuthRepository
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.StateFlow
 import java.util.UUID
@@ -21,7 +22,10 @@ data class UserState(
     val errorMessage: String? = null
 )
 
-class UserViewModel(private val repository: UserRepository) : ViewModel() {
+class UserViewModel(
+    private val repository: UserRepository,
+    private val authRepository: AuthRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(UserState())
     val state = _state.asStateFlow()
@@ -109,5 +113,9 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
                 }
             }
         }
+    }
+
+    fun logout() {
+        authRepository.logout()
     }
 }
