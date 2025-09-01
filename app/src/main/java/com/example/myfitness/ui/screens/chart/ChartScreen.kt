@@ -16,17 +16,16 @@ import androidx.navigation.NavController
 import com.example.myfitness.ui.composables.BottomBar
 import org.koin.androidx.compose.koinViewModel
 import com.example.myfitness.ui.composables.MyBarChart
-import com.example.myfitness.ui.screens.auth.AuthViewModel // ✅ Import AuthViewModel
+import com.example.myfitness.ui.screens.auth.AuthViewModel
 
 @Composable
 fun ChartScreen(
     state: ChartState,
     actions: ChartActions,
     navController: NavController,
-    authViewModel: AuthViewModel // ✅ Add AuthViewModel as a parameter
+    authViewModel: AuthViewModel
 ) {
     LaunchedEffect(Unit) {
-        // ✅ Get the userId and load the data
         val userId = authViewModel.actions.getCurrentUserId()
         if (userId.isNotEmpty()) {
             actions.loadTrainingData(userId)
@@ -34,6 +33,7 @@ fun ChartScreen(
     }
 
     Scaffold(
+
         bottomBar = { BottomBar(navController) }
     ) { paddingValues ->
         Box(
@@ -58,7 +58,8 @@ fun ChartScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(300.dp),
-                        entries = state.barChartEntries
+                        entries = state.barChartEntries,
+                        labels = state.xAxisLabels // ✅ Passa le etichette al grafico
                     )
                 }
                 else -> {

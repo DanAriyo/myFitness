@@ -1,3 +1,5 @@
+// ui/screens/chart/ChartViewModel.kt
+
 package com.example.myfitness.ui.screens.chart
 
 import androidx.lifecycle.ViewModel
@@ -12,13 +14,14 @@ import kotlinx.coroutines.launch
 // --- STATO ---
 data class ChartState(
     val barChartEntries: List<BarEntry> = emptyList(),
+    val xAxisLabels: List<String> = emptyList(), // ✅ Nuova lista per le etichette dell'asse X
     val isLoading: Boolean = true,
     val errorMessage: String? = null
 )
 
 // --- AZIONI ---
 interface ChartActions {
-    fun loadTrainingData(userId: String) // ✅ L'azione ora accetta l'userId
+    fun loadTrainingData(userId: String)
 }
 
 // --- VIEWMODEL ---
@@ -27,7 +30,6 @@ class ChartViewModel(private val repository: TrainingRepository) : ViewModel() {
     private val _state = MutableStateFlow(ChartState())
     val state = _state.asStateFlow()
 
-    // ✅ Implementazione delle azioni
     val actions: ChartActions = object : ChartActions {
         override fun loadTrainingData(userId: String) {
             viewModelScope.launch {
@@ -39,13 +41,14 @@ class ChartViewModel(private val repository: TrainingRepository) : ViewModel() {
                         BarEntry(
                             index.toFloat(),
                             training.calorie.toFloat(),
-                            training.titolo
                         )
                     }
+                    val labels = allTrainings.map { it.titolo } // ✅ Estrai le etichette
 
                     _state.update {
                         it.copy(
                             barChartEntries = entries,
+                            xAxisLabels = labels, // ✅ Salva le etichette nello stato
                             isLoading = false
                         )
                     }
