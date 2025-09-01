@@ -1,5 +1,6 @@
 package com.example.myfitness.ui
 
+import TrainingScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -20,7 +21,6 @@ import com.example.myfitness.ui.screens.home.HomeScreen
 import com.example.myfitness.ui.screens.maps.MapScreen
 import com.example.myfitness.ui.screens.maps.MapViewModel
 import com.example.myfitness.ui.screens.training.TrainingListViewModel
-import com.example.myfitness.ui.screens.training.TrainingScreen
 import com.example.myfitness.ui.screens.training.TrainingViewModel
 import com.example.myfitness.ui.screens.training.TrainingListScreen
 import com.example.myfitness.ui.screens.training.TrainingDetailScreen

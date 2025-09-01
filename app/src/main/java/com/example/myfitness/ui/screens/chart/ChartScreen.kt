@@ -5,15 +5,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.myfitness.ui.composables.BottomBar
+import com.example.myfitness.ui.composables.TopBar
 import com.example.myfitness.ui.composables.MyBarChart
-import com.example.myfitness.ui.composables.MyLineChart // Importa il grafico a linee
+import com.example.myfitness.ui.composables.MyLineChart
 import com.example.myfitness.ui.screens.auth.AuthViewModel
 
-// Definizione dell'enum per i tipi di grafico
 enum class ChartType {
     CALORIES,
     WEEKLY_TRAININGS
@@ -28,6 +29,11 @@ fun ChartScreen(
 ) {
     var selectedChartType by remember { mutableStateOf(ChartType.CALORIES) }
 
+    val title = when (selectedChartType) {
+        ChartType.CALORIES -> "Calorie Bruciate per Allenamento"
+        ChartType.WEEKLY_TRAININGS -> "Allenamenti Settimanali"
+    }
+
     LaunchedEffect(selectedChartType) {
         val userId = authViewModel.actions.getCurrentUserId()
         if (userId.isNotEmpty()) {
@@ -39,6 +45,7 @@ fun ChartScreen(
     }
 
     Scaffold(
+        topBar = { TopBar(title = title) },
         bottomBar = { BottomBar(navController) }
     ) { paddingValues ->
         Column(
@@ -47,24 +54,21 @@ fun ChartScreen(
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Segmented Button per la selezione del grafico
-            SegmentedButton(
+            ChartTypeSelector(
                 selectedChartType = selectedChartType,
                 onChartTypeSelected = { selectedChartType = it },
                 modifier = Modifier.padding(16.dp)
             )
 
-            // Contenuto dinamico in base alla selezione
             Box(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 when {
                     state.isLoading -> {
                         CircularProgressIndicator()
                     }
-                    state.errorMessage != null -> {
+                    !state.errorMessage.isNullOrEmpty() -> {
                         Text(
                             text = state.errorMessage!!,
                             color = MaterialTheme.colorScheme.error,
@@ -108,32 +112,60 @@ fun ChartScreen(
 }
 
 @Composable
-fun SegmentedButton(
+fun ChartTypeSelector(
     selectedChartType: ChartType,
     onChartTypeSelected: (ChartType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceAround
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
-        Button(
-            onClick = { onChartTypeSelected(ChartType.CALORIES) },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (selectedChartType == ChartType.CALORIES) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-            )
+        Row(
+            modifier = Modifier.padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Calorie")
-        }
-        Button(
-            onClick = { onChartTypeSelected(ChartType.WEEKLY_TRAININGS) },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (selectedChartType == ChartType.WEEKLY_TRAININGS) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+            ChartTab(
+                text = "Calorie",
+                isSelected = selectedChartType == ChartType.CALORIES,
+                onClick = { onChartTypeSelected(ChartType.CALORIES) },
+                modifier = Modifier.weight(1f)
             )
-        ) {
-            Text("Settimanale")
+            ChartTab(
+                text = "Settimanale",
+                isSelected = selectedChartType == ChartType.WEEKLY_TRAININGS,
+                onClick = { onChartTypeSelected(ChartType.WEEKLY_TRAININGS) },
+                modifier = Modifier.weight(1f)
+            )
         }
+    }
+}
+
+@Composable
+fun ChartTab(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+    val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        shape = MaterialTheme.shapes.small,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = contentColor
+        )
+    ) {
+        Text(
+            text = text,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+        )
     }
 }

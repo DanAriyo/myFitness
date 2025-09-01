@@ -1,5 +1,3 @@
-package com.example.myfitness.ui.screens.training
-
 import android.app.DatePickerDialog
 import android.content.Context
 import android.widget.DatePicker
@@ -11,7 +9,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Numbers
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,10 +24,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myfitness.data.models.Exercise
 import com.example.myfitness.ui.composables.BottomBar
+import com.example.myfitness.ui.composables.TopBar
 import com.example.myfitness.ui.screens.auth.AuthViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import com.example.myfitness.ui.screens.training.TrainingState
+import com.example.myfitness.ui.screens.training.TrainingActions
 
 @Composable
 fun TrainingScreen(
@@ -37,6 +42,7 @@ fun TrainingScreen(
     val context = LocalContext.current
 
     Scaffold(
+        topBar = { TopBar(title = "Crea un nuovo allenamento") }, // ✅ Added TopBar
         bottomBar = { BottomBar(navController) },
         floatingActionButton = {
             FloatingActionButton(
@@ -58,7 +64,7 @@ fun TrainingScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -73,50 +79,48 @@ fun TrainingScreen(
                 )
             }
 
-            // TextField per il nome dell'allenamento
+            // Text field for the training name with an icon
             OutlinedTextField(
                 value = state.trainingName,
                 onValueChange = { actions.onTrainingNameChange(it) },
                 label = { Text("Nome Allenamento") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = { Icon(Icons.Default.Timeline, contentDescription = null) }
             )
 
-            // ✅ Sezione per Calorie e Data
+            // ✅ Section for Calories and Date
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Input per le Calorie
                 OutlinedTextField(
                     value = state.calories,
                     onValueChange = { actions.onCaloriesChange(it) },
                     label = { Text("Calorie Bruciate") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = { Icon(Icons.Default.Timeline, contentDescription = null) }
                 )
 
-                // Input per la Data con DatePicker
-                Box(
+                // Date input with DatePicker
+                OutlinedTextField(
+                    value = state.date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    onValueChange = {},
+                    label = { Text("Data Allenamento") },
+                    readOnly = true,
                     modifier = Modifier
                         .weight(1f)
                         .clickable {
                             showDatePicker(context) { date ->
                                 actions.onDateChange(date)
                             }
-                        }
-                ) {
-                    OutlinedTextField(
-                        value = state.date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                        onValueChange = {}, // L'utente non può digitare qui
-                        label = { Text("Data Allenamento") },
-                        readOnly = true, // Impedisce la modifica manuale
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+                        },
+                    leadingIcon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) }
+                )
             }
 
-            // LazyColumn per la lista di esercizi
+            // LazyColumn for the exercise list
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier
@@ -151,7 +155,6 @@ fun TrainingScreen(
     }
 }
 
-// ✅ Funzione per mostrare il DatePickerDialog
 private fun showDatePicker(context: Context, onDateSelected: (LocalDate) -> Unit) {
     val calendar = Calendar.getInstance()
     val year = calendar.get(Calendar.YEAR)
@@ -193,7 +196,8 @@ fun ExerciseCard(
                 value = exercise.name,
                 onValueChange = onNameChange,
                 label = { Text("Nome Esercizio") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = { Icon(Icons.Default.Timeline, contentDescription = null) }
             )
 
             Row(
@@ -210,7 +214,8 @@ fun ExerciseCard(
                     },
                     label = { Text("Sets") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = { Icon(Icons.Default.Numbers, contentDescription = null) }
                 )
 
                 OutlinedTextField(
@@ -223,14 +228,16 @@ fun ExerciseCard(
                     },
                     label = { Text("Reps") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = { Icon(Icons.Default.Numbers, contentDescription = null) }
                 )
 
                 OutlinedTextField(
                     value = exercise.duration,
                     onValueChange = onDurationChange,
-                    label = { Text("Durata (es. 30s)") },
-                    modifier = Modifier.weight(1f)
+                    label = { Text("Durata") },
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = { Icon(Icons.Default.Schedule, contentDescription = null) }
                 )
             }
         }
