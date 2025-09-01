@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
-import java.util.Date
 
 // --- STATO ---
 data class ChartState(
@@ -18,46 +16,46 @@ data class ChartState(
     val errorMessage: String? = null
 )
 
+// --- AZIONI ---
+interface ChartActions {
+    fun loadTrainingData(userId: String) // ✅ L'azione ora accetta l'userId
+}
+
 // --- VIEWMODEL ---
 class ChartViewModel(private val repository: TrainingRepository) : ViewModel() {
 
     private val _state = MutableStateFlow(ChartState())
     val state = _state.asStateFlow()
 
-    init {
-        // Carica i dati non appena il ViewModel viene creato
-        loadTrainingData()
-    }
+    // ✅ Implementazione delle azioni
+    val actions: ChartActions = object : ChartActions {
+        override fun loadTrainingData(userId: String) {
+            viewModelScope.launch {
+                _state.update { it.copy(isLoading = true, errorMessage = null) }
+                try {
+                    val allTrainings = repository.getAllTrainingsForUser(userId)
 
-    private fun loadTrainingData() {
-        viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, errorMessage = null) }
-            try {
-                // Sostituisci con la tua logica per ottenere l'userId
-                val userId = "id_utente_corrente"
-                val allTrainings = repository.getAllTrainingsForUser(userId)
+                    val entries = allTrainings.mapIndexed { index, training ->
+                        BarEntry(
+                            index.toFloat(),
+                            training.calorie.toFloat(),
+                            training.titolo
+                        )
+                    }
 
-                // ✅ Mappa i dati in BarEntry
-                val entries = allTrainings.mapIndexed { index, training ->
-                    BarEntry(
-                        index.toFloat(), // Asse X
-                        training.calorie.toFloat(), // Asse Y
-                        training.titolo // Dato aggiuntivo per l'etichetta
-                    )
-                }
-
-                _state.update {
-                    it.copy(
-                        barChartEntries = entries,
-                        isLoading = false
-                    )
-                }
-            } catch (e: Exception) {
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Errore durante il caricamento dei dati: ${e.message}"
-                    )
+                    _state.update {
+                        it.copy(
+                            barChartEntries = entries,
+                            isLoading = false
+                        )
+                    }
+                } catch (e: Exception) {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "Errore durante il caricamento dei dati: ${e.message}"
+                        )
+                    }
                 }
             }
         }

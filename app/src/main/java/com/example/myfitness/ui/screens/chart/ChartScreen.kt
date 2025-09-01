@@ -15,15 +15,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.myfitness.ui.composables.BottomBar
 import org.koin.androidx.compose.koinViewModel
-import com.example.myfitness.ui.composables.MyBarChart // Assuming you placed the composable here
+import com.example.myfitness.ui.composables.MyBarChart
+import com.example.myfitness.ui.screens.auth.AuthViewModel // ✅ Import AuthViewModel
 
 @Composable
 fun ChartScreen(
-    viewModel: ChartViewModel = koinViewModel(),
-    navController: NavController
+    state: ChartState,
+    actions: ChartActions,
+    navController: NavController,
+    authViewModel: AuthViewModel // ✅ Add AuthViewModel as a parameter
 ) {
-    // ✅ Use the state from the ViewModel
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        // ✅ Get the userId and load the data
+        val userId = authViewModel.actions.getCurrentUserId()
+        if (userId.isNotEmpty()) {
+            actions.loadTrainingData(userId)
+        }
+    }
 
     Scaffold(
         bottomBar = { BottomBar(navController) }
@@ -45,9 +53,7 @@ fun ChartScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                // ✅ Access the correct data property
                 state.barChartEntries.isNotEmpty() -> {
-                    // Assuming MyBarChart is the composable you created
                     MyBarChart(
                         modifier = Modifier
                             .fillMaxWidth()

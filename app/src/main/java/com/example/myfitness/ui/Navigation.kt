@@ -156,10 +156,19 @@ fun MyFitnessNavGraph(navController: NavHostController) {
         }
 
         composable("chart") {
-            val vm = koinViewModel<ChartViewModel>()
+
+            val chartViewModel = koinViewModel<ChartViewModel>()
+            val authViewModel = koinViewModel<AuthViewModel>()
+
+
+            val chartState by chartViewModel.state.collectAsStateWithLifecycle()
+
+
             ChartScreen(
-                viewModel = vm,
-                navController = navController
+                state = chartState,
+                actions = chartViewModel.actions,
+                navController = navController,
+                authViewModel = authViewModel
             )
         }
     }
