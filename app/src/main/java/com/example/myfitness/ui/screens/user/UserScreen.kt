@@ -1,8 +1,14 @@
 package com.example.myfitness.ui.screens.user
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Height
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Scale
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,9 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myfitness.data.models.User
 import com.example.myfitness.ui.composables.BottomBar
+import com.example.myfitness.ui.composables.TopBar
 import com.example.myfitness.ui.screens.auth.AuthViewModel
-import com.example.myfitness.data.models.local.ThemeSettings
-
 
 @Composable
 fun UserScreen(
@@ -22,7 +27,6 @@ fun UserScreen(
     navController: NavController
 ) {
     val state by viewModel.state.collectAsState()
-    val currentTheme by viewModel.currentTheme.collectAsState()
     var isEditing by remember { mutableStateOf(false) }
 
     // Dati temporanei per la modifica
@@ -32,13 +36,11 @@ fun UserScreen(
     var height by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
 
-    // Carica i dati dell'utente loggato all'avvio dello screen
     LaunchedEffect(state.user) {
         val userId = authViewModel.actions.getCurrentUserId()
         if (userId.isNotEmpty()) {
             viewModel.loadUser(userId)
         }
-        // Aggiorna i campi quando i dati dell'utente cambiano
         state.user?.let { user ->
             firstName = user.firstName
             lastName = user.lastName
@@ -49,6 +51,7 @@ fun UserScreen(
     }
 
     Scaffold(
+        topBar = { TopBar(title = "Profilo Utente") }, // ✅ Aggiungi la tua TopBar
         bottomBar = { BottomBar(navController) }
     ) { contentPadding ->
         Column(
@@ -56,13 +59,9 @@ fun UserScreen(
                 .fillMaxSize()
                 .padding(contentPadding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally // Centra orizzontalmente i contenuti
         ) {
-            Text(
-                text = "Profilo Utente",
-                style = MaterialTheme.typography.headlineSmall
-            )
-
             if (state.isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
@@ -86,7 +85,8 @@ fun UserScreen(
                             onValueChange = { if (isEditing) firstName = it },
                             label = { Text("Nome") },
                             modifier = Modifier.fillMaxWidth(),
-                            readOnly = !isEditing
+                            readOnly = !isEditing,
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) } // ✅ Icona
                         )
 
                         OutlinedTextField(
@@ -94,7 +94,8 @@ fun UserScreen(
                             onValueChange = { if (isEditing) lastName = it },
                             label = { Text("Cognome") },
                             modifier = Modifier.fillMaxWidth(),
-                            readOnly = !isEditing
+                            readOnly = !isEditing,
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) } // ✅ Icona
                         )
 
                         OutlinedTextField(
@@ -102,7 +103,8 @@ fun UserScreen(
                             onValueChange = { if (isEditing) weight = it },
                             label = { Text("Peso (kg)") },
                             modifier = Modifier.fillMaxWidth(),
-                            readOnly = !isEditing
+                            readOnly = !isEditing,
+                            leadingIcon = { Icon(Icons.Default.Scale, contentDescription = null) } // ✅ Icona
                         )
 
                         OutlinedTextField(
@@ -110,31 +112,20 @@ fun UserScreen(
                             onValueChange = { if (isEditing) height = it },
                             label = { Text("Altezza (cm)") },
                             modifier = Modifier.fillMaxWidth(),
-                            readOnly = !isEditing
+                            readOnly = !isEditing,
+                            leadingIcon = { Icon(Icons.Default.Height, contentDescription = null) } // ✅ Icona
                         )
 
                         OutlinedTextField(
                             value = email,
-                            onValueChange = { }, // L'email non dovrebbe essere modificabile
+                            onValueChange = { },
                             label = { Text("Email") },
                             modifier = Modifier.fillMaxWidth(),
-                            readOnly = true
+                            readOnly = true,
+                            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) } // ✅ Icona
                         )
                     }
                 }
-
-                // ✅ Sezione per la scelta del tema
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Impostazioni Tema",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                ThemeToggleGroup(
-                    currentTheme = currentTheme,
-                    onThemeSelected = { newTheme ->
-                        viewModel.updateTheme(newTheme)
-                    }
-                )
             }
 
             // Bottoni di gestione
@@ -142,14 +133,18 @@ fun UserScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Button(
+                // ✅ Bottone "Modifica" più bello
+                FilledTonalButton(
                     onClick = { isEditing = true },
                     modifier = Modifier.weight(1f),
-                    enabled = !isEditing // Il bottone "Modifica" è attivo solo se non stiamo modificando
+                    enabled = !isEditing
                 ) {
-                    Text("Modifica Dati")
+                    Icon(Icons.Default.Edit, contentDescription = "Modifica")
+                    Spacer(Modifier.width(8.dp))
+                    Text("Modifica")
                 }
 
+                // ✅ Bottone "Salva" più bello
                 Button(
                     onClick = {
                         val userId = authViewModel.actions.getCurrentUserId()
@@ -160,60 +155,20 @@ fun UserScreen(
                                 lastName = lastName,
                                 height = height.toIntOrNull() ?: 0,
                                 weight = weight.toIntOrNull() ?: 0,
-                                email = email,
-                                theme = state.user?.theme ?: ThemeSettings.SYSTEM.name // Mantieni il tema
+                                email = email
                             )
                             viewModel.updateUser(userId, updatedUser)
                         }
                         isEditing = false
                     },
                     modifier = Modifier.weight(1f),
-                    enabled = isEditing // Il bottone "Salva" è attivo solo se stiamo modificando
+                    enabled = isEditing
                 ) {
-                    Text("Salva Dati")
+                    Icon(Icons.Default.Save, contentDescription = "Salva")
+                    Spacer(Modifier.width(8.dp))
+                    Text("Salva")
                 }
             }
         }
-    }
-}
-
-// ✅ Componente riutilizzabile per il toggle del tema
-@Composable
-fun ThemeToggleGroup(
-    currentTheme: ThemeSettings,
-    onThemeSelected: (ThemeSettings) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButtonWithLabel(
-            text = "Chiaro",
-            isSelected = currentTheme == ThemeSettings.LIGHT,
-            onClick = { Log.d("UserScreen", "Tentativo di impostare il tema su LIGHT.")
-                onThemeSelected(ThemeSettings.LIGHT) }
-        )
-        RadioButtonWithLabel(
-            text = "Scuro",
-            isSelected = currentTheme == ThemeSettings.DARK,
-            onClick = { Log.d("UserScreen", "Tentativo di impostare il tema su DARK.")
-                onThemeSelected(ThemeSettings.DARK) }
-        )
-        RadioButtonWithLabel(
-            text = "Sistema",
-            isSelected = currentTheme == ThemeSettings.SYSTEM,
-            onClick = { Log.d("UserScreen", "Tentativo di impostare il tema su SYSTEM.")
-                onThemeSelected(ThemeSettings.SYSTEM) }
-        )
-    }
-}
-
-@Composable
-fun RadioButtonWithLabel(text: String, isSelected: Boolean, onClick: () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(selected = isSelected, onClick = onClick)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = text, style = MaterialTheme.typography.bodyLarge)
     }
 }
