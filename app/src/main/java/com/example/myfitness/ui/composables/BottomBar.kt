@@ -2,6 +2,7 @@ package com.example.myfitness.ui.composables
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -26,9 +27,9 @@ fun BottomBar(navController: NavController) {
             onClick = { navController.navigate("traininglist") }
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Filled.Person, contentDescription = "Profilo") },
+            icon = { Icon(Icons.Filled.BarChart, contentDescription = "Grafici") },
             selected = false,
-            onClick = { navController.navigate("user") }
+            onClick = { navController.navigate("chart") }
         )
 
         NavigationBarItem(

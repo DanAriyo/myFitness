@@ -5,6 +5,7 @@ import com.example.myfitness.data.repositories.HomeRepository
 import com.example.myfitness.data.repositories.TrainingRepository
 import com.example.myfitness.data.repositories.UserRepository
 import com.example.myfitness.ui.screens.auth.AuthViewModel
+import com.example.myfitness.ui.screens.chart.ChartViewModel
 import com.example.myfitness.ui.screens.home.HomeViewModel
 import com.example.myfitness.ui.screens.maps.MapViewModel
 import com.example.myfitness.ui.screens.training.TrainingListViewModel
@@ -33,5 +34,6 @@ val appModule = module {
     viewModel { TrainingListViewModel(get()) }
     viewModel { TrainingDetailViewModel(get()) }
     viewModel { MapViewModel() }
+    viewModel { ChartViewModel(get()) }
 
 }

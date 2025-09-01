@@ -90,4 +90,5 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:2.3.8")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.8")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.8")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

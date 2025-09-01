@@ -11,6 +11,8 @@ import androidx.navigation.NavType
 import com.example.myfitness.ui.screens.auth.AuthScreen
 import com.example.myfitness.ui.screens.auth.AuthViewModel
 import com.example.myfitness.ui.screens.auth.RegisterScreen
+import com.example.myfitness.ui.screens.chart.ChartScreen
+import com.example.myfitness.ui.screens.chart.ChartViewModel
 import com.example.myfitness.ui.screens.exercise.ExerciseViewModel
 import com.example.myfitness.ui.screens.exercise.ExerciseScreen
 import com.example.myfitness.ui.screens.home.HomeViewModel
@@ -148,6 +150,14 @@ fun MyFitnessNavGraph(navController: NavHostController) {
         composable("maps") {
             val vm = koinViewModel<MapViewModel>()
             MapScreen(
+                viewModel = vm,
+                navController = navController
+            )
+        }
+
+        composable("chart") {
+            val vm = koinViewModel<ChartViewModel>()
+            ChartScreen(
                 viewModel = vm,
                 navController = navController
             )
