@@ -6,15 +6,9 @@ import android.content.pm.PackageManager
 import android.location.Location
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,7 +21,10 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import androidx.compose.runtime.DisposableEffect // ✅ Import aggiuntivo
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.unit.dp
+import com.example.myfitness.ui.composables.TopBar
+import com.example.myfitness.ui.composables.BottomBar
 
 @Composable
 fun MapScreen(
@@ -39,14 +36,13 @@ fun MapScreen(
     val poisState by viewModel.pois.collectAsState()
     val isPermissionDenied by viewModel.isPermissionDenied.collectAsState()
 
-    val locationClient = LocationServices.getFusedLocationProviderClient(context) // ✅ Crea qui il client
+    val locationClient = LocationServices.getFusedLocationProviderClient(context)
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted: Boolean ->
             if (isGranted) {
-                // Se il permesso è concesso, avvia gli aggiornamenti della posizione
-                viewModel.startLocationUpdates(context, locationClient) // ✅ Chiama il nuovo metodo
+                viewModel.startLocationUpdates(context, locationClient)
                 viewModel.setPermissionDenied(false)
             } else {
                 viewModel.setPermissionDenied(true)
@@ -60,14 +56,12 @@ fun MapScreen(
             Manifest.permission.ACCESS_FINE_LOCATION
         )
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
-            // Se il permesso è già concesso, avvia subito gli aggiornamenti
-            viewModel.startLocationUpdates(context, locationClient) // ✅ Chiama il nuovo metodo
+            viewModel.startLocationUpdates(context, locationClient)
         } else {
             locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 
-    // ✅ Usa DisposableEffect per fermare gli aggiornamenti quando esci dalla schermata
     DisposableEffect(Unit) {
         onDispose {
             viewModel.stopLocationUpdates(locationClient)
@@ -80,56 +74,74 @@ fun MapScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (isPermissionDenied) {
-            Text("Per visualizzare la mappa, è necessario concedere i permessi di localizzazione.")
-        } else {
-            locationState?.let { userLocation ->
-                AndroidView(
-                    modifier = Modifier.fillMaxSize(),
-                    factory = { context ->
-                        MapView(context).apply {
-                            setTileSource(TileSourceFactory.MAPNIK)
-                            controller.setZoom(15.0)
-                            controller.setCenter(
+    Scaffold(
+        topBar = { TopBar(title = "Mappa delle Attività") }, // ✅ Aggiungi la TopBar
+        bottomBar = { BottomBar(navController) } // ✅ Aggiungi la BottomBar
+    ) { contentPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (isPermissionDenied) {
+                Text(
+                    "Per visualizzare la mappa, è necessario concedere i permessi di localizzazione.",
+                    modifier = Modifier.padding(16.dp)
+                )
+            } else {
+                locationState?.let { userLocation ->
+                    AndroidView(
+                        modifier = Modifier.fillMaxSize(),
+                        factory = { context ->
+                            MapView(context).apply {
+                                setTileSource(TileSourceFactory.MAPNIK)
+                                controller.setZoom(15.0)
+                                controller.setCenter(
+                                    GeoPoint(userLocation.latitude, userLocation.longitude)
+                                )
+                                tag = Marker(this).apply {
+                                    position = GeoPoint(userLocation.latitude, userLocation.longitude)
+                                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                    title = "Sei qui"
+                                }
+                                overlays.add(tag as Marker)
+                            }
+                        },
+                        update = { mapView ->
+                            mapView.overlays.clear()
+                            val userMarker = mapView.tag as? Marker
+                            if (userMarker != null) {
+                                userMarker.position = GeoPoint(userLocation.latitude, userLocation.longitude)
+                                mapView.overlays.add(userMarker)
+                            }
+
+                            poisState.forEach { poi ->
+                                val poiMarker = Marker(mapView)
+                                poiMarker.position = poi
+                                poiMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                poiMarker.title = "POI Trovato"
+                                mapView.overlays.add(poiMarker)
+                            }
+                            mapView.controller.animateTo(
                                 GeoPoint(userLocation.latitude, userLocation.longitude)
                             )
-                            tag = Marker(this).apply {
-                                position = GeoPoint(userLocation.latitude, userLocation.longitude)
-                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                                title = "Sei qui"
-                            }
-                            overlays.add(tag as Marker)
+                            mapView.invalidate()
                         }
-                    },
-                    update = { mapView ->
-                        mapView.overlays.clear()
-                        val userMarker = mapView.tag as? Marker
-                        if (userMarker != null) {
-                            userMarker.position = GeoPoint(userLocation.latitude, userLocation.longitude)
-                            mapView.overlays.add(userMarker)
+                    )
+                } ?: run {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator()
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Cercando la tua posizione...")
                         }
-
-                        poisState.forEach { poi ->
-                            val poiMarker = Marker(mapView)
-                            poiMarker.position = poi
-                            poiMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                            poiMarker.title = "POI Trovato"
-                            mapView.overlays.add(poiMarker)
-                        }
-                        mapView.controller.animateTo(
-                            GeoPoint(userLocation.latitude, userLocation.longitude)
-                        )
-                        mapView.invalidate()
                     }
-                )
-            } ?: run {
-                CircularProgressIndicator()
-                Text("Cercando la tua posizione...")
+                }
             }
         }
     }
