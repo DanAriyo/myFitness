@@ -2,9 +2,6 @@ package com.example.myfitness.ui.screens.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.ScrollState
@@ -16,11 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myfitness.ui.composables.BottomBar
+import com.example.myfitness.ui.composables.TopBar
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.*
@@ -32,6 +29,9 @@ fun HomeScreen(
     navController: NavController
 ) {
     Scaffold(
+        topBar = {
+            TopBar(title = "La Tua Dashboard")
+        },
         bottomBar = { BottomBar(navController) },
         floatingActionButton = {
             FloatingActionButton(
@@ -50,63 +50,65 @@ fun HomeScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Header con l'icona del profilo
-            Row(
+            // Sezione di benvenuto
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
             ) {
-                Text(
-                    text = "Dashboard Fitness",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                IconButton(
-                    onClick = {
-                        navController.navigate("user")
-                    }
+                Column(
+                    modifier = Modifier.padding(24.dp)
                 ) {
-                    Icon(
-                        Icons.Filled.Person,
-                        contentDescription = "Profilo",
-                        tint = MaterialTheme.colorScheme.primary
+                    Text(
+                        text = "Benvenuto!",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Sei pronto per un'altra giornata di allenamento?",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
 
-            // Calendario orizzontale
-            CalendarRow()
-
-            Spacer(Modifier.height(16.dp))
-
-            if (state.isLoading) {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            state.errorMessage?.let {
-                Text(text = it, color = MaterialTheme.colorScheme.error)
-            }
-
-            // Card passi circolare
-            CircularStatCard(
-                label = "Passi di oggi",
-                current = state.steps,
-                max = 10000,
-                color = MaterialTheme.colorScheme.primary
+            // Sezione "Obiettivi del Giorno"
+            Text(
+                text = "Obiettivi del Giorno",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(top = 8.dp)
             )
 
-            // Card calorie circolare
-            CircularStatCard(
-                label = "Calorie bruciate",
-                current = state.calories,
-                max = 2500,
-                color = MaterialTheme.colorScheme.tertiary
-            )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    GoalItem(
+                        text = "Completare un allenamento completo",
+                        icon = Icons.Default.Add
+                    )
+                    GoalItem(
+                        text = "Raggiungere 30 minuti di attività",
+                        icon = Icons.Default.Add
+                    )
+                    GoalItem(
+                        text = "Mantenere una postura corretta",
+                        icon = Icons.Default.Add
+                    )
+                }
+            }
 
             // Card allenamento del giorno (rettangolare)
             Card(
@@ -130,74 +132,26 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
-
-            Button(
-                onClick = { actions.loadDashboard() },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Text("Aggiorna dati", color = MaterialTheme.colorScheme.onPrimary)
-            }
         }
     }
 }
 
 @Composable
-fun CircularStatCard(label: String, current: Int, max: Int, color: androidx.compose.ui.graphics.Color) {
-    val progress = (current.toFloat() / max).coerceIn(0f, 1f)
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(150.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+fun GoalItem(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Cerchio progress
-        CircularProgressIndicator(
-            progress = { progress },
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
-            color = color,
-            strokeWidth = 12.dp,
-            trackColor = ProgressIndicatorDefaults.circularTrackColor,
-            strokeCap = StrokeCap.Round,
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp)
         )
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
-            Text("$current / $max", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
-@Composable
-fun CalendarRow() {
-    val today = LocalDate.now()
-    val startOfMonth = today.withDayOfMonth(1)
-
-    val daysInMonth = (0 until today.lengthOfMonth()).map {
-        startOfMonth.plusDays(it.toLong())
-    }
-
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        items(daysInMonth) { day ->
-            val isToday = day == today
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-                    )
-            ) {
-                Text(
-                    text = day.dayOfMonth.toString(),
-                    color = if (isToday) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }

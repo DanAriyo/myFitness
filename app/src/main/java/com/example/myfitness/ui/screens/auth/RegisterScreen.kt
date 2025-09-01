@@ -2,31 +2,40 @@ package com.example.myfitness.ui.screens.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Height
+import androidx.compose.material.icons.filled.Scale
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myfitness.ui.FitnessScreen
 import com.example.myfitness.ui.toRoute
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     state: AuthState,
     actions: AuthActions,
     navController: NavController
 ) {
-
     val snackbarHostState = remember { SnackbarHostState() }
-
+    var passwordVisible by remember { mutableStateOf(false) }
 
     // Navigazione quando l'utente è registrato e loggato
     LaunchedEffect(state.isLoggedIn) {
@@ -45,125 +54,141 @@ fun RegisterScreen(
     }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background // ✅ Use MaterialTheme
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(MaterialTheme.colorScheme.background)
+                .padding(padding),
+            contentAlignment = Alignment.Center
         ) {
-            // Nome
-            TextField(
-                value = state.firstName,
-                onValueChange = actions::setFirstName,
-                label = { Text("Nome", color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                trailingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
-                colors = textFieldColors(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            // Cognome
-            TextField(
-                value = state.lastName,
-                onValueChange = actions::setLastName,
-                label = { Text("Cognome", color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                trailingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
-                colors = textFieldColors(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            // Email
-            TextField(
-                value = state.email,
-                onValueChange = actions::setEmail,
-                label = { Text("Email", color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                trailingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
-                colors = textFieldColors(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            // Password
-            TextField(
-                value = state.password,
-                onValueChange = actions::setPassword,
-                label = { Text("Password", color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                trailingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
-                colors = textFieldColors(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            // Altezza
-            TextField(
-                value = state.height,
-                onValueChange = actions::setHeight,
-                label = { Text("Altezza (cm)", color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                trailingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
-                colors = textFieldColors(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            // Peso
-            TextField(
-                value = state.weight,
-                onValueChange = actions::setWeight,
-                label = { Text("Peso (kg)", color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                trailingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
-                colors = textFieldColors(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // Bottone registrazione
-            Button(
-                onClick = { actions.register() },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .verticalScroll(rememberScrollState()),
+                shape = RoundedCornerShape(24.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
-                Text("Registrati", color = MaterialTheme.colorScheme.onPrimary)
-            }
+                Column(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "Crea un account",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Unisciti a noi e inizia il tuo percorso fitness!",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
 
-            Spacer(Modifier.height(8.dp))
+                    // Nome
+                    OutlinedTextField(
+                        value = state.firstName,
+                        onValueChange = actions::setFirstName,
+                        label = { Text("Nome") },
+                        singleLine = true,
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-            // Vai al login
-            TextButton(onClick = { navController.popBackStack() }) {
-                Text("Hai già un account? Accedi", color = MaterialTheme.colorScheme.primary)
+                    // Cognome
+                    OutlinedTextField(
+                        value = state.lastName,
+                        onValueChange = actions::setLastName,
+                        label = { Text("Cognome") },
+                        singleLine = true,
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Email
+                    OutlinedTextField(
+                        value = state.email,
+                        onValueChange = actions::setEmail,
+                        label = { Text("Email") },
+                        singleLine = true,
+                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Password
+                    OutlinedTextField(
+                        value = state.password,
+                        onValueChange = actions::setPassword,
+                        label = { Text("Password") },
+                        singleLine = true,
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                        trailingIcon = {
+                            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                            val description = if (passwordVisible) "Nascondi password" else "Mostra password"
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(imageVector = image, contentDescription = description)
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Altezza
+                    OutlinedTextField(
+                        value = state.height,
+                        onValueChange = actions::setHeight,
+                        label = { Text("Altezza (cm)") },
+                        singleLine = true,
+                        leadingIcon = { Icon(Icons.Default.Height, contentDescription = null) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Peso
+                    OutlinedTextField(
+                        value = state.weight,
+                        onValueChange = actions::setWeight,
+                        label = { Text("Peso (kg)") },
+                        singleLine = true,
+                        leadingIcon = { Icon(Icons.Default.Scale, contentDescription = null) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    // Bottone Registrati
+                    Button(
+                        onClick = { actions.register() },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        enabled = !state.isLoading
+                    ) {
+                        if (state.isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        } else {
+                            Text("Registrati", color = MaterialTheme.colorScheme.onPrimary)
+                        }
+                    }
+
+                    // Pulsante "Hai già un account?"
+                    TextButton(onClick = { navController.popBackStack() }) {
+                        Text("Hai già un account? Accedi", color = MaterialTheme.colorScheme.primary)
+                    }
+                }
             }
         }
     }
 }
-
-@Composable
-private fun textFieldColors() = TextFieldDefaults.colors(
-    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-    cursorColor = MaterialTheme.colorScheme.primary,
-    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    focusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-    unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-    focusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
-    unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface
-)

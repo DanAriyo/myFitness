@@ -2,14 +2,19 @@ package com.example.myfitness.ui.screens.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myfitness.ui.FitnessScreen
@@ -23,6 +28,7 @@ fun AuthScreen(
     navController: NavController
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.isLoggedIn) {
         if (state.isLoggedIn) {
@@ -41,94 +47,103 @@ fun AuthScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
                 .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(padding),
+            contentAlignment = Alignment.Center
         ) {
-            TextField(
-                value = state.email,
-                onValueChange = actions::setEmail,
-                label = { Text("Email", color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                trailingIcon = {
-                    Icon(
-                        Icons.Default.Email,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    cursorColor = MaterialTheme.colorScheme.primary,
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            TextField(
-                value = state.password,
-                onValueChange = actions::setPassword,
-                label = { Text("Password", color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                trailingIcon = {
-                    Icon(
-                        Icons.Default.Lock,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    cursorColor = MaterialTheme.colorScheme.primary,
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                shape = RoundedCornerShape(24.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
-                // Bottone Login
-                Button(
-                    onClick = { actions.login() },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                Column(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text("Login", color = MaterialTheme.colorScheme.onPrimary)
-                }
+                    Text(
+                        text = "Bentornato!",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Accedi",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                // Bottone Registrati → naviga a RegisterScreen
-                Button(
-                    onClick = { navController.navigate(FitnessScreen.Register.toRoute()) },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-                ) {
-                    Text("Registrati", color = MaterialTheme.colorScheme.onSecondary)
-                }
-            }
+                    // Campo Email
+                    OutlinedTextField(
+                        value = state.email,
+                        onValueChange = actions::setEmail,
+                        label = { Text("Email") },
+                        singleLine = true,
+                        leadingIcon = {
+                            Icon(Icons.Default.Email, contentDescription = "Email Icon")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-            if (state.isLoading) {
-                Spacer(Modifier.height(16.dp))
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    // Campo Password
+                    OutlinedTextField(
+                        value = state.password,
+                        onValueChange = actions::setPassword,
+                        label = { Text("Password") },
+                        singleLine = true,
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        leadingIcon = {
+                            Icon(Icons.Default.Lock, contentDescription = "Password Icon")
+                        },
+                        trailingIcon = {
+                            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                            val description = if (passwordVisible) "Hide password" else "Show password"
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(imageVector = image, description)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Pulsanti affiancati
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Bottone Login
+                        Button(
+                            onClick = { actions.login() },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                        ) {
+                            Text("Login", color = MaterialTheme.colorScheme.onPrimary)
+                        }
+
+                        // Bottone Registrati
+                        FilledTonalButton(
+                            onClick = { navController.navigate(FitnessScreen.Register.toRoute()) },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Registrati")
+                        }
+                    }
+
+                    if (state.isLoading) {
+                        Spacer(Modifier.height(16.dp))
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    }
+                }
             }
         }
     }

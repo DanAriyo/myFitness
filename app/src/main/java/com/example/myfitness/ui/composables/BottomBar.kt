@@ -42,5 +42,14 @@ fun BottomBar(navController: NavController) {
             selected = false,
             onClick = { navController.navigate("maps") }
         )
+        NavigationBarItem(
+            icon = { Icon(
+                Icons.Filled.Person,
+                contentDescription = "Profilo",
+                tint = MaterialTheme.colorScheme.primary
+            ) },
+            selected = false,
+            onClick = { navController.navigate("user") }
+        )
     }
 }
